@@ -77,8 +77,75 @@ HTTPは、ハイパーテキストとワールドワイドウェブを実現す�
     サーバーは少なくとも1つのCGI（例: `php-CGI`や`Python`など）と正常に動作する必要があります。
 
 すべての機能が評価時に正常に動作することを確認するために、テストおよびデモ用の設定ファイルと基本的なデフォルトファイルを提供する必要があります。
+> **EXAMPLE**：
+> ```nginx
+> server {
+>     listen 8080;
+>     server_names webserv.local webserv2.local;
+>     
+>     # / -> /var/www/html/
+>     root /var/www/html/;
+>     index index.html;
+> 
+>     location /api/v1/ {
+>         # /api/v1/ -> /var/www/api/v1/
+>         root /var/www/;
+>     }
+> 
+>     location /api/v2/ {
+>         # /api/v2/ -> /var/www/api/v2/
+>         alias /var/www/api/v2/;
+>         # allowed only GET, HEAD
+>         limit_expect GET HEAD {
+>             deny all;
+>         }
+>     }
+> 
+>     location /redirect/ {
+>         return 301 http://google.com;
+>     }
+> }
+> 
+> server {
+>     listen 8081;
+>     server_names webserv3.local webserv4.local;
+>     # allowed only GET, POST, DELETE, HEAD
+>     limit_expect GET POST DELETE HEAD {
+>         deny all;
+>     }
+> 
+>     # / -> /var/www/html/
+>     root /var/www/html/;
+>     index index.php;
+> 
+>     location /api/v1/ {
+>         # /api/v1/ -> /var/www/api/v1/
+>         root /var/www/;
+>     }
+>     
+>     location /api/v2/ {
+>         # /api/v2/ -> /var/www/api/v2/
+>         alias /var/www/api/v2/;
+>         # allowed only GET
+>         limit_expect GET {
+>             deny all;
+>         }
+>     }
+> 
+>     location /redirect/ {
+>         return 301 http://microsoft.com;
+>     }
+> 
+>     location /api/v3/*.bla {
+>         index index.bla;
+>         alias /var/www/api/v3/;
+>         cgi_pass /srv/ubuntu_cgi_tester;
+>     }
+> }
+> ```
 > **INFO**： 動作に関して疑問がある場合は、自分のプログラムの動作をNGINXの動作と比較するべきです。たとえば、`server_name`がどのように機能するかを確認するなどです。
 > また、簡易的なテスターを提供しています。これは必須ではありませんが、ブラウザやテストで問題なく動作している場合でも、バグを見つける際に役立つかもしれません。
+> 
 
 # Bonus part
 
