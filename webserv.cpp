@@ -6,13 +6,12 @@
 /*   By: yushsato <yushsato@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 20:30:59 by yushsato          #+#    #+#             */
-/*   Updated: 2025/01/24 22:42:57 by yushsato         ###   ########.fr       */
+/*   Updated: 2025/02/13 23:51:05 by yushsato         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./webserv.hpp"
-
-#include <cstdio>
+#include "webserv.hpp"
+#include "config/single_alias.hpp"
 
 int socket_create()
 {
@@ -58,8 +57,10 @@ int main()
 {
 	int server_fd = socket_create();
 	struct sockaddr_in address;
+	Alias alias("alias ./");
+	std::cout << "Log: " << alias.Get() << std::endl;
 
-	printf("[%s]%s:%d\t <%s>\t%d\n", __FILE__, __func__, __LINE__, "Socket fd", server_fd);
+	std::cout << "[" << __FILE__ << "]" << __func__ << ":" << __LINE__ << "\t <Socket fd> \t" << server_fd << std::endl;
 	if (server_fd < 0)
 		return (0);
 	address.sin_family = AF_INET;
@@ -84,7 +85,7 @@ int main()
 
 		// クライアントソケットを閉じる
 		close(new_socket);
-		printf("[%s]%s:%d\t <%s>\t%d\n", __FILE__, __func__, __LINE__, "Socket fd", server_fd);
+		std::cout << "[" << __FILE__ << "]" << __func__ << ":" << __LINE__ << "\t <Socket fd> \t" << server_fd << std::endl;
 	}
 	return (0);
 }

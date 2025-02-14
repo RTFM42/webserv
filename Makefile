@@ -1,23 +1,12 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: yushsato <yushsato@student.42tokyo.jp>     +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/01/24 22:09:34 by yushsato          #+#    #+#              #
-#    Updated: 2025/02/12 22:51:48 by yushsato         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME	= webserv
 CC		= c++
 CFLAGS	= -Wall -Wextra -Werror -std=c++98
 SRCS	= \
-	webserv.cpp
+	webserv.cpp \
+	config/single_alias.cpp
 	
 OBJS	= $(SRCS:.cpp=.o)
-INCLUDE	= -I./
+INCLUDE	= -I./ -I./config
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
