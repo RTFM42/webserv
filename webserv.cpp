@@ -6,12 +6,13 @@
 /*   By: yushsato <yushsato@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 20:30:59 by yushsato          #+#    #+#             */
-/*   Updated: 2025/02/13 23:51:05 by yushsato         ###   ########.fr       */
+/*   Updated: 2025/02/16 03:26:10 by yushsato         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "config/single_alias.hpp"
+#include "config/single_listen.hpp"
 
 int socket_create()
 {
@@ -53,14 +54,18 @@ int socket_listen(int server_fd)
 	return (0);
 }
 
-int main()
+int main(int ac, char *av[])
 {
+	(void)ac;
 	int server_fd = socket_create();
 	struct sockaddr_in address;
-	Alias alias("alias ./");
+	Alias alias(av[1]);
 	std::cout << "Log: " << alias.Get() << std::endl;
+	Listen listen(av[2]);
+	std::cout << "Log: " << listen.Get() << std::endl;
 
-	std::cout << "[" << __FILE__ << "]" << __func__ << ":" << __LINE__ << "\t <Socket fd> \t" << server_fd << std::endl;
+			std::cout
+		<< "[" << __FILE__ << "]" << __func__ << ":" << __LINE__ << "\t <Socket fd> \t" << server_fd << std::endl;
 	if (server_fd < 0)
 		return (0);
 	address.sin_family = AF_INET;
@@ -83,7 +88,6 @@ int main()
 		read(new_socket, buffer, BUFFER_SIZE);
 		write(new_socket, "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, world!", 53);
 
-		// クライアントソケットを閉じる
 		close(new_socket);
 		std::cout << "[" << __FILE__ << "]" << __func__ << ":" << __LINE__ << "\t <Socket fd> \t" << server_fd << std::endl;
 	}

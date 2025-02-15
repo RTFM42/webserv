@@ -1,8 +1,4 @@
 #include "fs.hpp"
-#include <string>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
 
 bool isEnoentPrint(const std::string &path)
 {

@@ -1,8 +1,9 @@
 #include <vector>
-#include "single_alias.hpp"
-#include "../fs/fs.hpp"
+#include <cctype>
+#include <sstream>
+#include "single_listen.hpp"
 
-static std::string parser(const std::string &line)
+static uint16_t parser(const std::string &line)
 {
 	std::vector<std::string> tokens;
 	std::string token;
@@ -59,66 +60,83 @@ static std::string parser(const std::string &line)
 	}
 	if (!token.empty())
 		tokens.push_back(token);
-	if (tokens.size() == 2 && tokens[0] == "alias")
+	if (tokens.size() == 2 && tokens[0] == "listen")
 	{
-		std::string path = tokens[1];
-		if (!isEnoentPrint(path) && !isEaccessOrEpermPrint(path) && !isEnotdirPrint(path) && !isDirEaccessPrint(path))
-			return (path);
-		else
-			return ("");
+		bool digit_ok = true;
+		for (std::string::const_iterator it = tokens[1].begin(); it != tokens[1].end(); ++it)
+		{
+			if (!std::isdigit(static_cast<unsigned char>(*it)))
+			{
+				digit_ok = false;
+				break;
+			}
+		}
+		if (digit_ok)
+		{
+			int port = 0;
+			std::istringstream iss(tokens[1]);
+			iss >> port;
+			if (!iss.fail() && port > 0 && port <= 65535)
+				return static_cast<uint16_t>(port);
+			else
+			{
+				std::cerr << "Error: " << port << ": port must be 1 to 65535" << std::endl;
+				return static_cast<uint16_t>(0);
+			}
+		}
 	}
-	std::cerr << "Error: Invalid alias: " << line << std::endl;
-	return ("");
+	std::cerr << "Error: Invalid listen: " << line << std::endl;
+	return (uint16_t)0;
 }
 
-Alias::Alias() : _line(""), _value(""), _isValid(false)
+Listen::Listen() : _line(""), _value(0), _isValid(false)
 {
 }
 
-Alias::Alias(const std::string line) : _value("")
+Listen::Listen(const std::string line) : _value(0), _isValid(false)
 {
 	this->_line = line;
 	this->_value = parser(line);
 	this->_isValid = true;
-	if (this->_value.empty())
+	if (this->_value > 0)
 		this->_isValid = false;
 }
 
-Alias::Alias(const Alias &cpy)
+Listen::Listen(const Listen &cpy)
 {
 	*this = cpy;
 }
 
-Alias::~Alias()
+Listen::~Listen()
 {
 }
 
-Alias &Alias::operator=(const Alias &other)
+Listen &Listen::operator=(const Listen &other)
 {
 	this->_line = other._line;
 	this->_value = parser(other._line);
 	this->_isValid = false;
-	if (this->_value.empty())
+	if (this->_value > 0)
 		this->_isValid = true;
 	return *this;
 }
 
-std::string Alias::Get()
+uint16_t Listen::Get()
 {
 	return this->_value;
 }
 
-std::string Alias::Set(const std::string line)
+uint16_t Listen::Set(const std::string line)
 {
 	this->_line = line;
 	this->_value = parser(line);
 	this->_isValid = false;
-	if (this->_value.empty())
-		this->_isValid = true;
+	if (this->_value > 0)
+		this->_value = true;
 	return this->_value;
 }
 
-bool Alias::IsValid()
+bool Listen::IsValid()
 {
 	return this->_isValid;
 }
