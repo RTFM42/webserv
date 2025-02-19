@@ -1,5 +1,5 @@
 #include <vector>
-#include "single_alias.hpp"
+#include "single_root.hpp"
 #include "../fs/fs.hpp"
 
 static std::string parser(const std::string &line)
@@ -61,7 +61,7 @@ static std::string parser(const std::string &line)
 		tokens.push_back(token);
 	if (tokens.back().back() != ';')
 		std::cerr << "Error: Invalid token." << std::endl;//TODO
-	if (tokens.size() == 2 && tokens[0] == "alias")
+	if (tokens.size() == 2 && tokens[0] == "root")
 	{
 		std::string path = tokens[1];
 		if (!isEnoentPrint(path) && !isEaccessOrEpermPrint(path) && !isEnotdirPrint(path) && !isDirEaccessPrint(path))
@@ -69,15 +69,15 @@ static std::string parser(const std::string &line)
 		else
 			return ("");
 	}
-	std::cerr << "Error: Invalid alias: " << line << std::endl;
+	std::cerr << "Error: Invalid root: " << line << std::endl;
 	return ("");
 }
 
-Alias::Alias() : _line(""), _value(""), _isValid(false)
+Root::Root() : _line(""), _value(""), _isValid(false)
 {
 }
 
-Alias::Alias(const std::string line) : _value("")
+Root::Root(const std::string line) : _value("")
 {
 	this->_line = line;
 	this->_value = parser(line);
@@ -86,16 +86,16 @@ Alias::Alias(const std::string line) : _value("")
 		this->_isValid = false;
 }
 
-Alias::Alias(const Alias &cpy)
+Root::Root(const Root &cpy)
 {
 	*this = cpy;
 }
 
-Alias::~Alias()
+Root::~Root()
 {
 }
 
-Alias &Alias::operator=(const Alias &other)
+Root &Root::operator=(const Root &other)
 {
 	this->_line = other._line;
 	this->_value = parser(other._line);
@@ -105,12 +105,12 @@ Alias &Alias::operator=(const Alias &other)
 	return *this;
 }
 
-std::string Alias::Get()
+std::string Root::Get()
 {
 	return this->_value;
 }
 
-std::string Alias::Set(const std::string line)
+std::string Root::Set(const std::string line)
 {
 	this->_line = line;
 	this->_value = parser(line);
@@ -120,7 +120,7 @@ std::string Alias::Set(const std::string line)
 	return this->_value;
 }
 
-bool Alias::IsValid()
+bool Root::IsValid()
 {
 	return this->_isValid;
 }

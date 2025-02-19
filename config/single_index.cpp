@@ -1,5 +1,5 @@
 #include <vector>
-#include "single_alias.hpp"
+#include "single_index.hpp"
 #include "../fs/fs.hpp"
 
 static std::string parser(const std::string &line)
@@ -61,23 +61,20 @@ static std::string parser(const std::string &line)
 		tokens.push_back(token);
 	if (tokens.back().back() != ';')
 		std::cerr << "Error: Invalid token." << std::endl;//TODO
-	if (tokens.size() == 2 && tokens[0] == "alias")
+	if (tokens.size() == 2 && tokens[0] == "index")
 	{
-		std::string path = tokens[1];
-		if (!isEnoentPrint(path) && !isEaccessOrEpermPrint(path) && !isEnotdirPrint(path) && !isDirEaccessPrint(path))
-			return (path);
-		else
-			return ("");
+		std::string fname = tokens[1];
+		return (fname);
 	}
-	std::cerr << "Error: Invalid alias: " << line << std::endl;
+	std::cerr << "Error: Invalid index: " << line << std::endl;
 	return ("");
 }
 
-Alias::Alias() : _line(""), _value(""), _isValid(false)
+Index::Index() : _line(""), _value(""), _isValid(false)
 {
 }
 
-Alias::Alias(const std::string line) : _value("")
+Index::Index(const std::string line) : _value("")
 {
 	this->_line = line;
 	this->_value = parser(line);
@@ -86,16 +83,16 @@ Alias::Alias(const std::string line) : _value("")
 		this->_isValid = false;
 }
 
-Alias::Alias(const Alias &cpy)
+Index::Index(const Index &cpy)
 {
 	*this = cpy;
 }
 
-Alias::~Alias()
+Index::~Index()
 {
 }
 
-Alias &Alias::operator=(const Alias &other)
+Index &Index::operator=(const Index &other)
 {
 	this->_line = other._line;
 	this->_value = parser(other._line);
@@ -105,12 +102,12 @@ Alias &Alias::operator=(const Alias &other)
 	return *this;
 }
 
-std::string Alias::Get()
+std::string Index::Get()
 {
 	return this->_value;
 }
 
-std::string Alias::Set(const std::string line)
+std::string Index::Set(const std::string line)
 {
 	this->_line = line;
 	this->_value = parser(line);
@@ -120,7 +117,7 @@ std::string Alias::Set(const std::string line)
 	return this->_value;
 }
 
-bool Alias::IsValid()
+bool Index::IsValid()
 {
 	return this->_isValid;
 }

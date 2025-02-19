@@ -60,6 +60,8 @@ static uint16_t parser(const std::string &line)
 	}
 	if (!token.empty())
 		tokens.push_back(token);
+	if (tokens.back().back() != ';')
+		std::cerr << "Error: Invalid token." << std::endl;//TODO
 	if (tokens.size() == 2 && tokens[0] == "listen")
 	{
 		bool digit_ok = true;
