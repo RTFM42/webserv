@@ -1,8 +1,7 @@
-#include <vector>
 #include "single_index.hpp"
 #include "../fs/fs.hpp"
 
-static std::string parser(const std::string &line)
+static std::vector<std::string> parser(const std::string &line)
 {
 	std::vector<std::string> tokens;
 	std::string token;
@@ -59,27 +58,30 @@ static std::string parser(const std::string &line)
 	}
 	if (!token.empty())
 		tokens.push_back(token);
-	if (tokens.back().back() != ';')
-		std::cerr << "Error: Invalid token." << std::endl;//TODO
-	if (tokens.size() == 2 && tokens[0] == "index")
+	if (!tokens.empty() && tokens.back().back() != ';')
 	{
-		std::string fname = tokens[1];
-		return (fname);
+		std::cerr << "Error: Invalid token." << std::endl;//TODO
+		return {};
+	}
+	tokens.back().pop_back();//最後のトークンの末尾のセミコロン削除
+	if (tokens.size() > 1 && tokens[0] == "index")
+	{
+		std::vector<std::string> fname(tokens.begin() + 1, tokens.end());
+		return fname;
 	}
 	std::cerr << "Error: Invalid index: " << line << std::endl;
-	return ("");
+	return {};
 }
 
-Index::Index() : _line(""), _value(""), _isValid(false)
+Index::Index() : _line(""), _isValid(false)
 {
 }
 
-Index::Index(const std::string line) : _value("")
+Index::Index(const std::string &line) : _line(line), _isValid(false)
 {
-	this->_line = line;
-	this->_value = parser(line);
+	this->_values = parser(line);
 	this->_isValid = true;
-	if (this->_value.empty())
+	if (this->_values.empty())
 		this->_isValid = false;
 }
 
@@ -95,26 +97,26 @@ Index::~Index()
 Index &Index::operator=(const Index &other)
 {
 	this->_line = other._line;
-	this->_value = parser(other._line);
+	this->_values = parser(other._line);
 	this->_isValid = false;
-	if (this->_value.empty())
+	if (this->_values.empty())
 		this->_isValid = true;
 	return *this;
 }
 
-std::string Index::Get()
+std::vector<std::string> Index::Get()
 {
-	return this->_value;
+	return this->_values;
 }
 
-std::string Index::Set(const std::string line)
+std::vector<std::string> Index::Set(const std::string line)
 {
 	this->_line = line;
-	this->_value = parser(line);
+	this->_values = parser(line);
 	this->_isValid = false;
-	if (this->_value.empty())
+	if (this->_values.empty())
 		this->_isValid = true;
-	return this->_value;
+	return this->_values;
 }
 
 bool Index::IsValid()

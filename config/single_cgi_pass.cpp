@@ -1,9 +1,8 @@
 #include <vector>
-#include <cctype>
-#include <sstream>
-#include "single_listen.hpp"
+#include "single_cgi_pass.hpp"
+#include "../fs/fs.hpp"
 
-static uint16_t parser(const std::string &line)
+static std::string parser(const std::string &line)
 {
 	std::vector<std::string> tokens;
 	std::string token;
@@ -66,83 +65,66 @@ static uint16_t parser(const std::string &line)
 		return {};
 	}
 	tokens.back().pop_back();//最後のトークンの末尾のセミコロン削除
-	if (tokens.size() == 2 && tokens[0] == "listen")
+	if (tokens.size() == 2 && tokens[0] == "cgi_pass")
 	{
-		bool digit_ok = true;
-		for (std::string::const_iterator it = tokens[1].begin(); it != tokens[1].end(); ++it)
-		{
-			if (!std::isdigit(static_cast<unsigned char>(*it)))
-			{
-				digit_ok = false;
-				break;
-			}
-		}
-		if (digit_ok)
-		{
-			int port = 0;
-			std::istringstream iss(tokens[1]);
-			iss >> port;
-			if (!iss.fail() && port > 0 && port <= 65535)
-				return static_cast<uint16_t>(port);
-			else
-			{
-				std::cerr << "Error: " << port << ": port must be 1 to 65535" << std::endl;
-				return static_cast<uint16_t>(0);
-			}
-		}
+		std::string path = tokens[1];
+		if (!isEnoentPrint(path) && !isEaccessOrEpermPrint(path) && !isEnotdirPrint(path) && !isDirEaccessPrint(path))
+			return (path);
+		else
+			return ("");
 	}
-	std::cerr << "Error: Invalid listen: " << line << std::endl;
-	return (uint16_t)0;
+	std::cerr << "Error: Invalid cgi_pass: " << line << std::endl;
+	return ("");
 }
 
-Listen::Listen() : _line(""), _value(0), _isValid(false)
+Cgi::Cgi() : _line(""), _value(""), _isValid(false)
 {
 }
 
-Listen::Listen(const std::string line) : _value(0), _isValid(false)
+Cgi::Cgi(const std::string line) : _value("")
 {
 	this->_line = line;
 	this->_value = parser(line);
 	this->_isValid = true;
-	if (this->_value > 0)
+	if (this->_value.empty())
 		this->_isValid = false;
 }
 
-Listen::Listen(const Listen &cpy)
+Cgi::Cgi(const Cgi &cpy)
 {
 	*this = cpy;
 }
 
-Listen::~Listen()
+Cgi::~Cgi()
 {
 }
 
-Listen &Listen::operator=(const Listen &other)
+Cgi &Cgi::operator=(const Cgi &other)
 {
 	this->_line = other._line;
 	this->_value = parser(other._line);
 	this->_isValid = false;
-	if (this->_value > 0)
+	if (this->_value.empty())
 		this->_isValid = true;
 	return *this;
 }
 
-uint16_t Listen::Get()
+std::string Cgi::Get()
 {
 	return this->_value;
 }
 
-uint16_t Listen::Set(const std::string line)
+std::string Cgi::Set(const std::string line)
 {
 	this->_line = line;
 	this->_value = parser(line);
 	this->_isValid = false;
-	if (this->_value > 0)
-		this->_value = true;
+	if (this->_value.empty())
+		this->_isValid = true;
 	return this->_value;
 }
 
-bool Listen::IsValid()
+bool Cgi::IsValid()
 {
 	return this->_isValid;
 }

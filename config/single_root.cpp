@@ -59,8 +59,12 @@ static std::string parser(const std::string &line)
 	}
 	if (!token.empty())
 		tokens.push_back(token);
-	if (tokens.back().back() != ';')
+	if (!tokens.empty() && tokens.back().back() != ';')
+	{
 		std::cerr << "Error: Invalid token." << std::endl;//TODO
+		return {};
+	}
+	tokens.back().pop_back();//最後のトークンの末尾のセミコロン削除
 	if (tokens.size() == 2 && tokens[0] == "root")
 	{
 		std::string path = tokens[1];
