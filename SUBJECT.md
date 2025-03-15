@@ -96,9 +96,7 @@ HTTPは、ハイパーテキストとワールドワイドウェブを実現す�
 >         # /api/v2/ -> /var/www/api/v2/
 >         alias /var/www/api/v2/;
 >         # allowed only GET, HEAD
->         limit_expect GET HEAD {
->             deny all;
->         }
+>         limit_expect GET HEAD;
 >     }
 > 
 >     location /redirect/ {
@@ -110,9 +108,7 @@ HTTPは、ハイパーテキストとワールドワイドウェブを実現す�
 >     listen 8081;
 >     server_names webserv3.local webserv4.local;
 >     # allowed only GET, POST, DELETE, HEAD
->     limit_expect GET POST DELETE HEAD {
->         deny all;
->     }
+>     limit_expect GET POST DELETE HEAD;
 > 
 >     # / -> /var/www/html/
 >     root /var/www/html/;
@@ -127,9 +123,7 @@ HTTPは、ハイパーテキストとワールドワイドウェブを実現す�
 >         # /api/v2/ -> /var/www/api/v2/
 >         alias /var/www/api/v2/;
 >         # allowed only GET
->         limit_expect GET {
->             deny all;
->         }
+>         limit_expect GET;
 >     }
 > 
 >     location /redirect/ {
