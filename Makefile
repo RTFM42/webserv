@@ -2,10 +2,8 @@ NAME	= webserv
 CC		= c++
 CFLAGS	= -Wall -Wextra -Werror -std=c++98
 SRCS	= \
-./config/single_alias.cpp \
-./config/single_listen.cpp \
-./fs/fs.cpp \
-./webserv.cpp
+	./fs/fs.cpp \
+	./webserv.cpp
 	
 OBJS	= $(SRCS:.cpp=.o)
 INCLUDE	= -I. -Iconfig -Ifs
