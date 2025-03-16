@@ -109,7 +109,7 @@ Parser::Parser(const std::string &config)
             {
                 // VALUE
                 n = 0;
-                while (config[i + n] != ';' && config[i + n] != '{')
+                while (config[i + n] && config[i + n] != ';' && config[i + n] != '{')
                     n++;
                 value.push_back(new std::string(config.substr(i, n)));
                 i += n;
