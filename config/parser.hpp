@@ -4,20 +4,14 @@
 #include <string>
 #include <vector>
 
-struct config_raw
-{
-    std::string key;
-    std::string value;
-    std::vector<config_raw*> scopes;
-};
+#include "./config_raw.hpp"
 
 class Parser
 {
 public:
-    Parser();
     Parser(const std::string &config);
     ~Parser();
-    config_raw config;
+    ConfigRaw *config;
 };
 
 #endif
