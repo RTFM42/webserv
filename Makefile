@@ -3,8 +3,8 @@ CC		= c++
 CFLAGS	= -Wall -Wextra -Werror -std=c++98
 SRCS	= \
 	main.cpp \
-	config/config_raw.cpp \
-	config/parser.cpp
+	# config/config_raw.cpp \
+	# config/parser.cpp
 	
 OBJS	= $(SRCS:.cpp=.o)
 INCLUDE	= -I. -Iconfig -Ifs

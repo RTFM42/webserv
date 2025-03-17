@@ -3,6 +3,8 @@
 #include "./parser.hpp"
 #include "./config_raw.hpp"
 
+#define DEBUG std::cerr << "debug: " << __LINE__ << std::endl
+
 Parser::Parser(const std::string &config)
 {
     int i = 0;
