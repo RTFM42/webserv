@@ -9,7 +9,7 @@ class ConfigRaw
 public:
     ConfigRaw();
     ~ConfigRaw();
-    friend std::ostream &operator<<(std::ostream &os, const ConfigRaw &config);
+    friend std::ostream &operator<<(std::ostream &os, const ConfigRaw *config);
     unsigned long count;
     std::string key;
     std::vector<std::string *> value;

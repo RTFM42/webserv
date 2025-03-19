@@ -18,7 +18,7 @@ Parser::Parser(const std::string &config)
 
     while (i == 0)
     {
-        // KEY
+        // SKIP COMMENT OUT, and SPACE and RETURN
         while (std::isspace(config[i]) || config[i] == ';' || config[i] == '#')
         {
             if (std::isspace(config[i]) || config[i] == ';')
@@ -27,6 +27,8 @@ Parser::Parser(const std::string &config)
                 while (config[i] && config[i] != '\n')
                     i++;
         }
+
+        // KEY
         if (!config[i])
         {
             std::cerr << "Error: invalid config key(" << i << ")" << std::endl;
