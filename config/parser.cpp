@@ -88,6 +88,10 @@ int Parser::extractScope(std::vector<ConfigRaw *> *dst, const std::string &confi
 				}
 			}
 		}
+		for (std::vector<ConfigRaw *>::iterator it = dst->begin(); it != dst->end(); it++)
+		{
+			delete *it;
+		}
 	}
 	return (0);
 }
@@ -135,8 +139,12 @@ Parser::Parser(const std::string &config)
 		while (config[i])
 		{
 			// SKIP COMMENT OUT, and SPACE and RETURN
-			i += this->skipCommentSpace3(&config[i]);
-
+			n = this->skipCommentSpace3(&config[i]);
+			i += n;
+			if (n)
+			{
+				continue;
+			}
 			if (config[i] == ';')
 			{
 				i++;
