@@ -5,6 +5,102 @@
 
 #define DEBUG std::cerr << "debug: " << __LINE__ << std::endl
 
+int Parser::skipCommentSpace3Semiolon(const std::string &config)
+{
+	int i = 0;
+
+	while (std::isspace(config[i]) || config[i] == ';' || config[i] == '#')
+	{
+		if (std::isspace(config[i]) || config[i] == ';')
+			i++;
+		else if (config[i] == '#')
+			while (config[i] && config[i] != '\n')
+				i++;
+	}
+	return (i);
+}
+
+int Parser::skipCommentSpace3(const std::string &config)
+{
+	int i = 0;
+
+	while (std::isspace(config[i]) || config[i] == '#')
+	{
+		if (std::isspace(config[i]))
+			i++;
+		else if (config[i] == '#')
+			while (config[i] && config[i] != '\n')
+				i++;
+	}
+	return (i);
+}
+
+int Parser::extractKey(std::string *dst, const std::string &config)
+{
+	int i = 0;
+
+	if (!config[i])
+		return (0);
+	while (('A' <= config[i] && config[i] <= 'Z') || ('a' <= config[i] && config[i] <= 'z') || '_' == config[i])
+		i++;
+	if (i == 0)
+		return (0);
+	*dst = config.substr(0, i);
+	return (i);
+}
+
+int Parser::extractScope(std::vector<ConfigRaw *> *dst, const std::string &config)
+{
+	int i = 0;
+	Parser *child = NULL;
+
+	if (config[i] == '{')
+	{
+		i++;
+		while (config[i])
+		{
+			child = new Parser(&config[i]);
+			if (child->config == NULL || child->config->key.empty())
+			{
+				delete child;
+				for (std::vector<ConfigRaw *>::iterator it = dst->begin(); it != dst->end(); it++)
+				{
+					delete *it;
+				}
+				return (0);
+			}
+			else
+			{
+				dst->push_back(child->config);
+				i += child->config->count;
+				delete child;
+				while (std::isspace(config[i]) || config[i] == ';')
+				{
+					if (std::isspace(config[i]))
+						i++;
+					else if (config[i] == ';')
+						i++;
+				}
+				if (config[i] == '}')
+				{
+					i++;
+					return (i);
+				}
+			}
+		}
+	}
+	return (0);
+}
+
+int Parser::extractValue(std::vector<std::string *> *dst, const std::string &config)
+{
+	int n = 0;
+	while (config[n] && !std::isspace(config[n]) && config[n] != ';' && config[n] != '{')
+		n++;
+	dst->push_back(new std::string(config.substr(0, n)));
+	return (n);
+}
+
 Parser::Parser(const std::string &config)
 {
 	int i = 0;
@@ -12,55 +108,35 @@ Parser::Parser(const std::string &config)
 	std::string key = "";
 	std::vector<std::string *> value;
 	std::vector<ConfigRaw *> scope;
-	Parser *child = NULL;
 
 	this->config = NULL;
 
 	while (i == 0)
 	{
 		// SKIP COMMENT OUT, and SPACE and RETURN
-		while (std::isspace(config[i]) || config[i] == ';' || config[i] == '#')
-		{
-			if (std::isspace(config[i]) || config[i] == ';')
-				i++;
-			else if (config[i] == '#')
-				while (config[i] && config[i] != '\n')
-					i++;
-		}
+		i += this->skipCommentSpace3Semiolon(&config[i]);
 
 		// KEY
-		if (!config[i])
+		i += this->extractKey(&key, &config[i]);
+		// CHECK END OF KEY
+		if (key.length() == 0 || !config[i])
 		{
-			std::cerr << "Error: invalid config key(" << i << ")" << std::endl;
+			std::cerr << "Error: invalid config(" << i << ")" << std::endl;
 			return;
 		}
-		n = 0;
-		while (('A' <= config[i + n] && config[i + n] <= 'Z') || ('a' <= config[i + n] && config[i + n] <= 'z') || '_' == config[i + n])
-			n++;
-		if (n == 0)
-		{
-			std::cerr << "Error: invalid config key(" << i << ")" << std::endl;
-			return;
-		}
-		key = config.substr(i, n);
-		i += n;
-		if (!config[i])
-		{
-			std::cerr << "Error: invalid config key(end)" << std::endl;
-			return;
-		}
-		// KEY END
-		while (std::isspace(config[i]))
-			i++;
-		if (config[i] == ';' && i++)
+		i += this->skipCommentSpace3(&config[i]);
+		if (config[i] == ';')
 		{
 			i++;
 			break;
 		}
 
-		// VALUE and SCOPE
+		// VALUE, SCOPE
 		while (config[i])
 		{
+			// SKIP COMMENT OUT, and SPACE and RETURN
+			i += this->skipCommentSpace3(&config[i]);
+
 			if (config[i] == ';')
 			{
 				i++;
@@ -69,59 +145,25 @@ Parser::Parser(const std::string &config)
 			else if (config[i] == '{')
 			{
 				// SCOPE
-				i++;
-				while (1)
+				n = this->extractScope(&scope, &config[i]);
+				i += n;
+				if (n == 0)
 				{
-					child = new Parser(&config[i]);
-					if (child->config == NULL || child->config->key.empty())
-					{
-						delete child;
-						for (std::vector<ConfigRaw *>::iterator it = scope.begin(); it != scope.end(); it++)
-						{
-							delete *it;
-						}
-						return;
-					}
-					else
-					{
-						scope.push_back(child->config);
-						i += child->config->count;
-						delete child;
-						while (std::isspace(config[i]) || config[i] == ';')
-						{
-							if (std::isspace(config[i]))
-								i++;
-							else if (config[i] == ';')
-								i++;
-						}
-						if (config[i] == '}')
-							break;
-					}
-				}
-				if (!config[i])
-				{
-					std::cerr << "Error: invalid config(end)" << std::endl;
+					std::cerr << "Error: invalid config(" << i << ")" << std::endl;
 					return;
 				}
-				if (config[i] == '}')
-				{
-					i++;
-					break;
-				}
-				else
-				{
-					std::cerr << "Error: invalid config child(" << i << ")" << std::endl;
-					return;
-				}
+				break;
 			}
 			else
 			{
 				// VALUE
-				n = 0;
-				while (config[i + n] && config[i + n] != ';' && config[i + n] != '{')
-					n++;
-				value.push_back(new std::string(config.substr(i, n)));
+				n = this->extractValue(&value, &config[i]);
 				i += n;
+				if (n == 0)
+				{
+					std::cerr << "Error: invalid config(" << i << ")" << std::endl;
+					return;
+				}
 			}
 		}
 		break;
