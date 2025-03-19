@@ -9,9 +9,9 @@
 class Parser
 {
 public:
-    Parser(const std::string &config);
-    ~Parser();
-    ConfigRaw *config;
+	Parser(const std::string &config);
+	~Parser();
+	ConfigRaw *config;
 };
 
 #endif
