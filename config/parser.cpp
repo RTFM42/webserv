@@ -134,6 +134,11 @@ Parser::Parser(const std::string &config)
 			i++;
 			break;
 		}
+		else if (!config[i])
+		{
+			std::cerr << "Error: invalid config(" << i << ")" << std::endl;
+			return;
+		}
 
 		// VALUE, SCOPE
 		while (config[i])
